@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ORDER_ITEMS } from './static_data';
+import { ORDER_ITEMS } from './models';
 import { CoffeeItem } from './CoffeeItem';
 
 

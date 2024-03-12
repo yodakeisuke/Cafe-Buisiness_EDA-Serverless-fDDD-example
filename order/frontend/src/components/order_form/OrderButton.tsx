@@ -6,8 +6,8 @@ export const OrderButton: React.FC = () => {
     <button
       className="
         bg-amber-700 hover:bg-amber-800
-        text-white font-bold
-        py-1 px-2 rounded
+        text-white font-bold text-sm
+        py-1 px-3 rounded
       "
     >
       Order<br />Now

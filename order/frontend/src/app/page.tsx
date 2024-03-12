@@ -1,10 +1,11 @@
 import { OrderForm } from "@/components/order_form/Index";
+import { OrderStatus } from "@/components/order_state/Index";
 
 export default function Home() {
   return (
     <main
       className="
-        min-h-screen
+        h-screen
         place-items-center
         w-[95vw] max-w-[700px] mx-auto
         grid
@@ -16,11 +17,7 @@ export default function Home() {
         <OrderForm />
       </ContentArea>
       <ContentArea className="row-span-auto">
-        <section>
-          <h2 className="font-semibold text-1xl">
-            Current Order Status
-          </h2>
-        </section>
+        <OrderStatus />
       </ContentArea>
     </main>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { SizePrice } from './static_data';
+import { SizePrice } from './models';
 
 
 export const  useSizePrice = (initialSizes: SizePrice[]) => {

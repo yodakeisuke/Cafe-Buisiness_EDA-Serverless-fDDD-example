@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 
-import { SizePrice } from './static_data';
+import { SizePrice } from './models';
 
 import { SizeToggle } from './SizeToggle';
 import { OrderButton } from './OrderButton';
