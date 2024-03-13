@@ -1,0 +1,121 @@
+﻿schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Mutation {
+  createOrder(input: CreateOrderInput!): Order
+  updateOrder(input: UpdateOrderInput!): Order
+}
+
+type Order {
+  OrderDateTime: AWSDateTime!
+  OrderTransaction: AWSJSON!
+  Status: String!
+  UserID: ID!
+}
+
+type OrderConnection {
+  items: [Order]
+  nextToken: String
+}
+
+type Query {
+  getOrder(OrderDateTime: AWSDateTime!, UserID: ID!): Order
+  listOrders(filter: TableOrderFilterInput, limit: Int, nextToken: String): OrderConnection
+  queryOrdersByUserIDStatusIndex(UserID: ID!, after: String, first: Int): OrderConnection
+}
+
+type Subscription {
+  onCreateOrder(OrderDateTime: AWSDateTime, OrderTransaction: AWSJSON, Status: String, UserID: ID): Order @aws_subscribe(mutations : ["createOrder"])
+  onUpdateOrder(OrderDateTime: AWSDateTime, OrderTransaction: AWSJSON, Status: String, UserID: ID): Order @aws_subscribe(mutations : ["updateOrder"])
+}
+
+input CreateOrderInput {
+  OrderDateTime: AWSDateTime!
+  OrderTransaction: AWSJSON!
+  Status: String!
+  UserID: ID!
+}
+
+input ModelSizeInput {
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input TableBooleanFilterInput {
+  attributeExists: Boolean
+  eq: Boolean
+  ne: Boolean
+}
+
+input TableFloatFilterInput {
+  attributeExists: Boolean
+  between: [Float]
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+}
+
+input TableIDFilterInput {
+  attributeExists: Boolean
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+  size: ModelSizeInput
+}
+
+input TableIntFilterInput {
+  attributeExists: Boolean
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input TableOrderFilterInput {
+  OrderDateTime: TableStringFilterInput
+  Status: TableStringFilterInput
+  UserID: TableIDFilterInput
+}
+
+input TableStringFilterInput {
+  attributeExists: Boolean
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+  size: ModelSizeInput
+}
+
+input UpdateOrderInput {
+  OrderDateTime: AWSDateTime!
+  OrderTransaction: AWSJSON
+  Status: String
+  UserID: ID!
+}
