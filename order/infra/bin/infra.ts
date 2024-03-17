@@ -5,7 +5,7 @@ import { OrderStack } from '../lib/order_stack';
 
 const app = new cdk.App();
 
-new OrderStack(app, 'UILambdaStack', {
+new OrderStack(app, 'OrderAppStack', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION

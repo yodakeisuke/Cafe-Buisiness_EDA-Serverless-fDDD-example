@@ -8,7 +8,9 @@ import {
     InlineCode,
     Resolver,
     Definition,
+    FieldLogLevel,
 } from 'aws-cdk-lib/aws-appsync';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import { join } from 'path';
 
 export class DataAppSyncConstruct extends Construct {
@@ -37,6 +39,10 @@ export class DataAppSyncConstruct extends Construct {
         const OrderAppSyncApi = new GraphqlApi(this, 'OrderAppSyncApi', {
             name: 'OrderAppsyncAPI',
             definition: Definition.fromFile(join(__dirname, 'schema.graphql')),
+            logConfig: {
+                retention: logs.RetentionDays.ONE_WEEK,
+                fieldLogLevel: FieldLogLevel.ALL
+            },
         });
 
         // AppSync Data Source -> DynamoDB table
