@@ -1,7 +1,17 @@
-import { OrderForm } from "@/components/order_form/Index";
-import { OrderStatus } from "@/components/order_state/Index";
+import { registerUrql } from '@urql/next/rsc';
+import { makeClient } from '@/lib/client';
 
-export default function Home() {
+import { GET_ORDER_LIST_QUERY, OrderListResponse } from '@/lib/query';
+
+import { OrderForm } from "@/app/_components/order_form/Index";
+import { OrderStatus } from "@/app/_components/order_state/Index";
+
+
+const { getClient } = registerUrql(makeClient);
+
+export default async function Home() {
+  const result = await getClient().query<OrderListResponse>(GET_ORDER_LIST_QUERY, { UserID: "user-123" });
+  console.log("server result", result);
   return (
     <main
       className="

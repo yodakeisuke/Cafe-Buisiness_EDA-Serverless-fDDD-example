@@ -1,5 +1,6 @@
-import React from 'react';
+'use client';
 
+import React from 'react';
 
 export const OrderButton: React.FC = () => {
   return (

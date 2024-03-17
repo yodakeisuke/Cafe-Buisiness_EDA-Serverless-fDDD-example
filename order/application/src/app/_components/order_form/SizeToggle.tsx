@@ -4,7 +4,7 @@ import React from 'react';
 import {
   ToggleGroup,
   ToggleGroupItem,
-} from "@/components/ui/toggle-group"
+} from "@/app/_components/ui/toggle-group"
 
 
 interface SizeToggleProps {

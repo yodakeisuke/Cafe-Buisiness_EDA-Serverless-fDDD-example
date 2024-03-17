@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { AspectRatio } from "@/app/_components/ui/aspect-ratio"
 
 import { SizePrice } from './models';
 
