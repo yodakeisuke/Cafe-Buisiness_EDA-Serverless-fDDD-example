@@ -91,7 +91,7 @@ export class DataAppSyncConstruct extends Construct {
             {
                 api: OrderAppSyncApi,
                 typeName: 'Query',
-                fieldName: 'listOrders',
+                fieldName: 'getOrdersByUserID',
                 runtime: FunctionRuntime.JS_1_0_0,
                 pipelineConfig: [getOrderListByUserFunc],
                 code: passthrough,

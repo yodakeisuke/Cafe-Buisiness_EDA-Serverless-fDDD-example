@@ -17,7 +17,7 @@ interface CoffeeItemProps {
 }
 
 export const CoffeeItem: React.FC<CoffeeItemProps> = ({ image, title, sizes }) => {
-  const { price, setSize } = useSizePrice(sizes);
+  const { price, selectedSize, setSize } = useSizePrice(sizes);
 
   const sizeProps = {
     s: sizes.some(s => s.size === 's'),
@@ -58,7 +58,7 @@ export const CoffeeItem: React.FC<CoffeeItemProps> = ({ image, title, sizes }) =
         <div className="font-semibold text-lg text-gray-500">
           ¥ {price}
         </div>
-        <OrderButton />
+        <OrderButton item={title} price={price.toString()} size={selectedSize}/>
       </div>
 
     </div>

@@ -1,3 +1,8 @@
+'use client';
+
+import { useMemo } from 'react';
+import { UrqlProvider, ssrExchange, cacheExchange, fetchExchange, createClient } from '@urql/next';
+
 import type { Metadata } from "next";
 import "./globals.css";
 import { Inter as FontSans } from "next/font/google"
@@ -9,16 +14,32 @@ const fontSans = FontSans({
   variable: "--font-sans",
 })
 
-export const metadata: Metadata = {
-  title: "Coffee",
-  description: "demo app",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const [client, ssr] = useMemo(() => {
+    const ssr = ssrExchange({
+      isClient: typeof window !== 'undefined'
+    });
+    const client = createClient({
+      url: process.env.APPSYNC_URL || "",
+      exchanges: [cacheExchange, ssr, fetchExchange],
+      suspense: true,
+      fetchOptions: () => {
+        return {
+          headers: {
+            'x-api-key': process.env.APPSYNC_API_KEY || "",
+          },
+        };
+      },
+    });
+
+    return [client, ssr];
+  }, []);
+
   return (
     <html lang="en">
       <body
@@ -27,7 +48,9 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
+      <UrqlProvider client={client} ssr={ssr}>
         {children}
+      </UrqlProvider>
       </body>
     </html>
   );

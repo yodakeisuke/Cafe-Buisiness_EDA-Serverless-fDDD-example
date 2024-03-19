@@ -23,6 +23,7 @@ type OrderConnection {
 
 type Query {
   getOrder(OrderDateTime: AWSDateTime!, UserID: ID!): Order
+  getOrdersByUserID(UserID: ID!): [Order]
   listOrders(filter: TableOrderFilterInput, limit: Int, nextToken: String): OrderConnection
   queryOrdersByUserIDStatusIndex(UserID: ID!, after: String, first: Int): OrderConnection
 }

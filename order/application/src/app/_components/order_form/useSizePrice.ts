@@ -17,5 +17,5 @@ export const  useSizePrice = (initialSizes: SizePrice[]) => {
     }
   };
 
-  return { price, setSize };
+  return { price, selectedSize, setSize };
 }

@@ -10,3 +10,14 @@ export const ListAllOrdersByUserQuery = graphql(`
     }
   }
 `)
+
+export const CreateOrderMutation = graphql(`
+  mutation CreateOrder ($input: CreateOrderInput!) {
+    createOrder(input: $input) {
+      OrderDateTime
+      OrderTransaction
+      Status
+      UserID
+    }
+  }
+`)

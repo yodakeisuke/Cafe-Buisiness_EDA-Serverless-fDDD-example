@@ -200,5 +200,13 @@ export type ListAllOrdersByUserQueryVariables = Exact<{
 
 export type ListAllOrdersByUserQuery = { __typename?: 'Query', getOrdersByUserID?: Array<{ __typename?: 'Order', OrderDateTime: any, OrderTransaction: any, Status: string, UserID: string } | null> | null };
 
+export type CreateOrderMutationVariables = Exact<{
+  input: CreateOrderInput;
+}>;
+
+
+export type CreateOrderMutation = { __typename?: 'Mutation', createOrder?: { __typename?: 'Order', OrderDateTime: any, OrderTransaction: any, Status: string, UserID: string } | null };
+
 
 export const ListAllOrdersByUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListAllOrdersByUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getOrdersByUserID"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"UserID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OrderDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"OrderTransaction"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"UserID"}}]}}]}}]} as unknown as DocumentNode<ListAllOrdersByUserQuery, ListAllOrdersByUserQueryVariables>;
+export const CreateOrderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrder"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrderInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OrderDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"OrderTransaction"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"UserID"}}]}}]}}]} as unknown as DocumentNode<CreateOrderMutation, CreateOrderMutationVariables>;

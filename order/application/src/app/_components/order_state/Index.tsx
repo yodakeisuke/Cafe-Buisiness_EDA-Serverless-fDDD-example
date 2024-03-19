@@ -20,7 +20,7 @@ export const OrderStatus = ()  => {
     </Suspense>
   );
 }
-
+// TODO: cache refresh
 export const OrderStatusList: React.FC = async () => {
   const result = await getClient().query(ListAllOrdersByUserQuery, {UserID: "user_987654321"});
 
@@ -33,6 +33,7 @@ export const OrderStatusList: React.FC = async () => {
     >
       <h2 className="font-semibold text-1xl py-3 px-2">
         Current Order Status graph try
+        {result.data?.getOrdersByUserID?.length}
       </h2>
       <ul>
         {result.data?.getOrdersByUserID?.map((item) => (
