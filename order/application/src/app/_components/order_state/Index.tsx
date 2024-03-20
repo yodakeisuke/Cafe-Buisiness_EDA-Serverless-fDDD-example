@@ -1,8 +1,10 @@
 import React from 'react';
 import { Suspense } from 'react';
+import { cookies } from 'next/headers';
 
+import { useSubscription } from '@urql/next';
 import { registerUrql } from '@urql/next/rsc';
-import { makeClient } from '@/lib/client';
+import { serverSideClient } from '@/lib/dataAccessClient/serverSide';
 import { ListAllOrdersByUserQuery } from '@/lib/query';
 
 import { ScrollArea } from "@/app/_components/ui/scroll-area"
@@ -11,7 +13,11 @@ import { ORDERS, Order } from './models';
 import { OrderStateItem } from './OrderStateItem';
 
 
-const { getClient } = registerUrql(makeClient);
+const { getClient } = registerUrql(serverSideClient);
+
+const handleSubscription = (messages = [], response: any) => {
+  return [response.newMessages, ...messages];
+};
 
 export const OrderStatus = ()  => {
   return (
@@ -22,7 +28,16 @@ export const OrderStatus = ()  => {
 }
 // TODO: cache refresh
 export const OrderStatusList: React.FC = async () => {
-  const result = await getClient().query(ListAllOrdersByUserQuery, {UserID: "user_987654321"});
+  const a = cookies() // TODO: 無理やり動的にしないと親のrefreshで更新しない。要追加調査。
+  const result = await getClient().query(
+    ListAllOrdersByUserQuery,
+    { UserID: "user_987654321" },
+    {
+      pause: false,
+      requestPolicy: 'network-only',
+    }
+  );
+  // const subRes  = useSubscription({ query: newMessages }, handleSubscription);
 
   return (
     <section

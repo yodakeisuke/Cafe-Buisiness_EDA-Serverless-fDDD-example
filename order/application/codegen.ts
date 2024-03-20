@@ -1,6 +1,6 @@
 import { CodegenConfig } from '@graphql-codegen/cli'
 
-const APPSYNC_URL = process.env.APPSYNC_URL || ""
+const APPSYNC_URL = process.env.NEXT_PUBLIC_APPSYNC_URL || ""
 const APPSYNC_API_KEY = process.env.APPSYNC_API_KEY || ""
 
 const config: CodegenConfig = {

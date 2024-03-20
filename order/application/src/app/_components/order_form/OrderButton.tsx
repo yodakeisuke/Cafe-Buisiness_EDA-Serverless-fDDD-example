@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation'
 
 import { CreateOrderMutation } from '@/lib/query';
 import { useMutation } from '@urql/next';
+
+import { Button } from "@/components/ui/button"
 
 interface OrderProps {
   item: string;
@@ -14,15 +17,16 @@ interface OrderProps {
 export const OrderButton: React.FC<OrderProps> = (props) => {
   return (
     <React.Suspense>
-      <Button {...props} />
+      <ButtonInner {...props} />
     </React.Suspense>
   );
 };
 
 const USER_ID = "user_987654321";
 
-const Button: React.FC<OrderProps> = (props) => {
+const ButtonInner: React.FC<OrderProps> = (props) => {
   const [createOrderResult, createOrder] = useMutation(CreateOrderMutation);
+  const router = useRouter()
 
   const handleClick = () => {
     const now = new Date().toISOString();
@@ -40,19 +44,23 @@ const Button: React.FC<OrderProps> = (props) => {
         UserID: USER_ID,
       },
     });
+    // TODO: すごい微妙 subscribeにする。
+    setTimeout(() => {
+      router.refresh();
+    }, 500);
   }
 
   return (
-    <button
+    <Button
       className="
         bg-amber-700 hover:bg-amber-800
         text-white font-bold text-sm
         py-1 px-3 rounded
       "
       onClick={handleClick}
-      disabled={props.size === null}
+      disabled={!(props.size)}
     >
       Order<br />Now
-  </button>
+  </Button>
   );
 };

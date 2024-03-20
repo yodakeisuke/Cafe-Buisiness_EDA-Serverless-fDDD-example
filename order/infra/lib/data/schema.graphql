@@ -4,7 +4,7 @@
   subscription: Subscription
 }
 
-type Mutation {
+type Mutation @aws_cognito_user_pools {
   createOrder(input: CreateOrderInput!): Order
   updateOrder(input: UpdateOrderInput!): Order
 }
@@ -21,14 +21,14 @@ type OrderConnection {
   nextToken: String
 }
 
-type Query {
+type Query @aws_cognito_user_pools {
   getOrder(OrderDateTime: AWSDateTime!, UserID: ID!): Order
   getOrdersByUserID(UserID: ID!): [Order]
   listOrders(filter: TableOrderFilterInput, limit: Int, nextToken: String): OrderConnection
   queryOrdersByUserIDStatusIndex(UserID: ID!, after: String, first: Int): OrderConnection
 }
 
-type Subscription {
+type Subscription @aws_cognito_user_pools {
   onCreateOrder(OrderDateTime: AWSDateTime, OrderTransaction: AWSJSON, Status: String, UserID: ID): Order @aws_subscribe(mutations : ["createOrder"])
   onUpdateOrder(OrderDateTime: AWSDateTime, OrderTransaction: AWSJSON, Status: String, UserID: ID): Order @aws_subscribe(mutations : ["updateOrder"])
 }

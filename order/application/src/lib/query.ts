@@ -21,3 +21,16 @@ export const CreateOrderMutation = graphql(`
     }
   }
 `)
+
+
+
+/*
+subscription MySubscription {
+  onCreateOrder(UserID: "user_987654321") {
+    OrderDateTime
+    OrderTransaction
+    Status
+    UserID
+  }
+}
+*/

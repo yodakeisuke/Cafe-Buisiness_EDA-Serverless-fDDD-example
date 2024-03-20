@@ -9,16 +9,19 @@ import {
     Resolver,
     Definition,
     FieldLogLevel,
+    AuthorizationType,
 } from 'aws-cdk-lib/aws-appsync';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { join } from 'path';
+import { UserPool } from 'aws-cdk-lib/aws-cognito';
+import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 
 export class DataAppSyncConstruct extends Construct {
     public readonly graphqlApiArn: string;
     public readonly graphqlApiUrl: string;
     public readonly graphqlApiKey: string;
 
-    constructor(scope: Construct, id: string) {
+    constructor(scope: Construct, id: string, userPool: UserPool, identityPool: IdentityPool) {
         super(scope, id);
 
         // DynamoDB Table
@@ -39,11 +42,26 @@ export class DataAppSyncConstruct extends Construct {
         const OrderAppSyncApi = new GraphqlApi(this, 'OrderAppSyncApi', {
             name: 'OrderAppsyncAPI',
             definition: Definition.fromFile(join(__dirname, 'schema.graphql')),
+            authorizationConfig: {
+                defaultAuthorization: {
+                    authorizationType: AuthorizationType.USER_POOL,
+                    userPoolConfig: {
+                        userPool,
+                    },
+                },
+                additionalAuthorizationModes: [
+                    {
+                    authorizationType: AuthorizationType.IAM,
+                    },
+                ],
+            },
             logConfig: {
                 retention: logs.RetentionDays.ONE_WEEK,
                 fieldLogLevel: FieldLogLevel.ALL
             },
         });
+
+        OrderAppSyncApi.grantQuery(identityPool.unauthenticatedRole, 'getOrdersByUserID')
 
         // AppSync Data Source -> DynamoDB table
         const DDBDataSource = OrderAppSyncApi.addDynamoDbDataSource(
