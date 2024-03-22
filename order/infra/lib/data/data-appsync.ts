@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { AttributeType, TableV2, Billing, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { AttributeType, TableV2, Billing, ProjectionType, StreamViewType } from 'aws-cdk-lib/aws-dynamodb';
 import {
     AppsyncFunction,
     Code,
@@ -13,15 +13,23 @@ import {
 } from 'aws-cdk-lib/aws-appsync';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { join } from 'path';
+
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
+import { RemovalPolicy } from 'aws-cdk-lib';
 
 export class DataAppSyncConstruct extends Construct {
+    public readonly table: TableV2;
     public readonly graphqlApiArn: string;
     public readonly graphqlApiUrl: string;
     public readonly graphqlApiKey: string;
 
-    constructor(scope: Construct, id: string, userPool: UserPool, identityPool: IdentityPool) {
+    constructor(
+            scope: Construct, id: string,
+            userPool: UserPool,
+            identityPool: IdentityPool,
+        ) {
+
         super(scope, id);
 
         // DynamoDB Table
@@ -29,6 +37,7 @@ export class DataAppSyncConstruct extends Construct {
             partitionKey: { name: 'UserID', type: AttributeType.STRING },
             sortKey: { name: 'OrderDateTime', type: AttributeType.STRING },
             billing: Billing.onDemand(),
+            removalPolicy: RemovalPolicy.DESTROY,
             localSecondaryIndexes: [
                 {
                     indexName: 'StatusIndex',
@@ -36,8 +45,10 @@ export class DataAppSyncConstruct extends Construct {
                     projectionType: ProjectionType.ALL,
                 },
             ],
+            dynamoStream: StreamViewType.NEW_IMAGE
         });
 
+        /* App Sync and Resolvers */
         // AppSync GraphQL API
         const OrderAppSyncApi = new GraphqlApi(this, 'OrderAppSyncApi', {
             name: 'OrderAppsyncAPI',
@@ -125,6 +136,7 @@ export class DataAppSyncConstruct extends Construct {
             code: passthrough,
         });
 
+        this.table = OrderEventTable;
         this.graphqlApiArn = OrderAppSyncApi.arn;
         this.graphqlApiUrl = OrderAppSyncApi.graphqlUrl;
         this.graphqlApiKey = OrderAppSyncApi.apiKey || '';

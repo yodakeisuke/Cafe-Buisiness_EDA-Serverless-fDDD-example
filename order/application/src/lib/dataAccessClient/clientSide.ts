@@ -1,13 +1,10 @@
 ;import { authExchange } from "@urql/exchange-auth";
 import { fetchAuthSession, signOut } from 'aws-amplify/auth';
 
-const APPSYNC_URL = process.env.NEXT_PUBLIC_APPSYNC_URL|| ""
-
 const initializeAuthState = async () => {
   try {
     const {
       tokens,
-
     } = await fetchAuthSession();
     console.log('initializeAuthState', tokens);
     const {

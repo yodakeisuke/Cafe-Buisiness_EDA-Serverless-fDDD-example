@@ -5,6 +5,7 @@ import {
     IdentityPool,
     UserPoolAuthenticationProvider,
 } from '@aws-cdk/aws-cognito-identitypool-alpha'
+import { RemovalPolicy } from 'aws-cdk-lib';
 
 
 export class CognitoConstruct extends Construct {
@@ -17,6 +18,7 @@ export class CognitoConstruct extends Construct {
         const userPool = new UserPool(this, 'UserOrderPool', {
             selfSignUpEnabled: true,
             accountRecovery: AccountRecovery.PHONE_AND_EMAIL,
+            removalPolicy: RemovalPolicy.DESTROY,
             userVerification: {
                 emailStyle: VerificationEmailStyle.CODE,
             },

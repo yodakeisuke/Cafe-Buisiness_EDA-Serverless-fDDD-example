@@ -16,7 +16,7 @@
     --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 4.8% 95.9%;
+    --secondary: 240 4.8% 9s5.9%;
     --secondary-foreground: 240 5.9% 10%;
 
     --muted: 240 4.8% 95.9%;
@@ -72,5 +72,14 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .force-amplify-submit-style {
+    --amplify-submit-bg-color: hsl(190, 100%, 20%);
+  }
+  .force-amplify-submit-style .amplify-button[type='submit'] {
+    background-color: var(--amplify-submit-bg-color) !important;
   }
 }
