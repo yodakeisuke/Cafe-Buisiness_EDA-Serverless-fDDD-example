@@ -5,11 +5,11 @@ import { CloudWatchLogGroup } from 'aws-cdk-lib/aws-events-targets';
 import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { RemovalPolicy } from 'aws-cdk-lib';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime, StartingPosition } from 'aws-cdk-lib/aws-lambda';
-import { CfnPipe } from 'aws-cdk-lib/aws-pipes';
-import { join } from 'path';
 import { ITable } from 'aws-cdk-lib/aws-dynamodb';
+import { CfnPipe } from 'aws-cdk-lib/aws-pipes';
+import { Runtime, StartingPosition } from 'aws-cdk-lib/aws-lambda';
+// import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+// import { join } from 'path';
 
 
 export class CDCTableToBusConstruct extends Construct {
@@ -25,18 +25,18 @@ export class CDCTableToBusConstruct extends Construct {
         const centralEventBus = events.EventBus.fromEventBusArn(this, 'ExistingEventBusInOrder', centralEventBusArn);
 
         // log group to see output
-        const orderLogGroup = new LogGroup(this, 'orders-log', {
-            logGroupName: '/aws/events/orders',
+        const orderLogGroup = new LogGroup(this, 'ordered-log', {
+            logGroupName: '/aws/events/ordered',
             retention: RetentionDays.ONE_DAY,
             removalPolicy: RemovalPolicy.DESTROY
         });
 
         // Rule that matches any incoming event and sends it to a logGroup
-        const catchAll = new Rule(this, 'send-to-log', {
+        const catchAll = new Rule(this, 'send-to-ordered-log', {
             eventBus: centralEventBus,
-            ruleName: 'catchall',
+            ruleName: 'catch-ordered',  // todo: orderEventのみにする
             eventPattern: {
-                // orderEventのみにする
+
                 source:  Match.exists()
             },
         targets: [new CloudWatchLogGroup(orderLogGroup)]
@@ -56,7 +56,7 @@ export class CDCTableToBusConstruct extends Construct {
         centralEventBus.grantPutEventsTo(pipeRole);
 
         // Create new Pipe
-        const pipe = new CfnPipe(this, 'pipe', {
+        const pipe = new CfnPipe(this, 'ordered-pipe', {
             roleArn: pipeRole.roleArn,
             //@ts-ignore
             source: sourceTable.tableStreamArn,

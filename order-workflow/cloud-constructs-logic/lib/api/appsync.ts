@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { AttributeType, TableV2, Billing, ProjectionType, StreamViewType } from 'aws-cdk-lib/aws-dynamodb';
+import { TableV2 } from 'aws-cdk-lib/aws-dynamodb';
 import {
     AppsyncFunction,
     Code,
@@ -16,10 +16,8 @@ import { join } from 'path';
 
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
-import { RemovalPolicy } from 'aws-cdk-lib';
 
-export class DataAppSyncConstruct extends Construct {
-    public readonly table: TableV2;
+export class AppSyncConstruct extends Construct {
     public readonly graphqlApiArn: string;
     public readonly graphqlApiUrl: string;
     public readonly graphqlApiKey: string;
@@ -28,27 +26,12 @@ export class DataAppSyncConstruct extends Construct {
             scope: Construct, id: string,
             userPool: UserPool,
             identityPool: IdentityPool,
+            orderedEventStore: TableV2,
+            orderStateView: TableV2,
         ) {
 
         super(scope, id);
 
-        // DynamoDB Table
-        const OrderEventTable = new TableV2(this, 'OrderEventTable', {
-            partitionKey: { name: 'UserID', type: AttributeType.STRING },
-            sortKey: { name: 'OrderDateTime', type: AttributeType.STRING },
-            billing: Billing.onDemand(),
-            removalPolicy: RemovalPolicy.DESTROY,
-            localSecondaryIndexes: [
-                {
-                    indexName: 'StatusIndex',
-                    sortKey: { name: 'Status', type: AttributeType.STRING },
-                    projectionType: ProjectionType.ALL,
-                },
-            ],
-            dynamoStream: StreamViewType.NEW_IMAGE
-        });
-
-        /* App Sync and Resolvers */
         // AppSync GraphQL API
         const OrderAppSyncApi = new GraphqlApi(this, 'OrderAppSyncApi', {
             name: 'OrderAppsyncAPI',
@@ -76,8 +59,8 @@ export class DataAppSyncConstruct extends Construct {
 
         // AppSync Data Source -> DynamoDB table
         const DDBDataSource = OrderAppSyncApi.addDynamoDbDataSource(
-            'DDBDataSource',
-            OrderEventTable,
+            'DDBDataSourceOrdered',
+            orderedEventStore,
         );
 
         // Functions and Resolvers
@@ -136,7 +119,6 @@ export class DataAppSyncConstruct extends Construct {
             code: passthrough,
         });
 
-        this.table = OrderEventTable;
         this.graphqlApiArn = OrderAppSyncApi.arn;
         this.graphqlApiUrl = OrderAppSyncApi.graphqlUrl;
         this.graphqlApiKey = OrderAppSyncApi.apiKey || '';
