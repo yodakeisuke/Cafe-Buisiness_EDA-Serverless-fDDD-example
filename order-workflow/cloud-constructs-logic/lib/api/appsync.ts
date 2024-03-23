@@ -20,7 +20,6 @@ import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 export class AppSyncConstruct extends Construct {
     public readonly graphqlApiArn: string;
     public readonly graphqlApiUrl: string;
-    public readonly graphqlApiKey: string;
 
     constructor(
             scope: Construct, id: string,
@@ -45,7 +44,7 @@ export class AppSyncConstruct extends Construct {
                 },
                 additionalAuthorizationModes: [
                     {
-                    authorizationType: AuthorizationType.IAM,
+                        authorizationType: AuthorizationType.IAM,
                     },
                 ],
             },
@@ -121,6 +120,5 @@ export class AppSyncConstruct extends Construct {
 
         this.graphqlApiArn = OrderAppSyncApi.arn;
         this.graphqlApiUrl = OrderAppSyncApi.graphqlUrl;
-        this.graphqlApiKey = OrderAppSyncApi.apiKey || '';
     }
 }

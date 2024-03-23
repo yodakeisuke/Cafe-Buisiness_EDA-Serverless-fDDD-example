@@ -2,49 +2,51 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { CognitoConstruct } from './auth/cognito';
-import { DataAppSyncConstruct } from './data/tables';
-import { CDCTableToBusConstruct } from './data/change-data-cpture'
+import { EventStoreConstruct } from './data/event-store';
+import { ReadModelConstruct } from './data/read-model'
 import { AppSyncConstruct } from './api/appsync';
 import { UILambdaConstruct } from './ui/ui-lambda';
 
 import { Config } from '../../../common/cloud-constructs-logic/config/type'
 
 
-interface OrderStackProps extends StackProps {
+interface OrderWorkflowStackProps extends StackProps {
     config: Config;
 }
 
-export class OrderStack extends Stack {
-    constructor(scope: Construct, id: string, props: OrderStackProps) {
+export class OrderWorkflowStack extends Stack {
+    constructor(scope: Construct, id: string, props: OrderWorkflowStackProps) {
         super(scope, id, props);
 
         const auth = new CognitoConstruct(
             this, 'OrderCognitoResources'
         );
 
-        const dataLayer = new DataAppSyncConstruct(
+        const dataLayerFact = new EventStoreConstruct(
             this, 'OrderDataResource',
+            props.config.centralEbentBusARN,
         );
 
-        const cdcPipe = new CDCTableToBusConstruct(
-            this, 'OrderedCDCPipe',
+        const dataLayerView = new ReadModelConstruct(
+            this, 'OrderStateCache',
             props.config.centralEbentBusARN,
-            dataLayer.orderedEventStore
         )
 
         const apiLayer =  new AppSyncConstruct(
             this, 'OrderUserAPI',
             auth.userPool,
             auth.identityPool,
-            dataLayer.orderStateView,
-            dataLayer.orderStateView,
+            dataLayerFact.orderedEventStore,
+            dataLayerView.orderStateView,
         )
 
         const uiLayer = new UILambdaConstruct(
             this, 'OrderUILambdaResources',
             apiLayer.graphqlApiArn,
             apiLayer.graphqlApiUrl,
-            apiLayer.graphqlApiKey,
+            auth.userPool.userPoolId,
+            auth.identityPool.identityPoolId,
+            auth.clientID,
         );
     }
 }

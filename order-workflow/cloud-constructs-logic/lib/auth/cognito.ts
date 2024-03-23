@@ -1,6 +1,5 @@
 import { Construct } from 'constructs';
 import { AccountRecovery, UserPool, UserPoolClient, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito'
-
 import {
     IdentityPool,
     UserPoolAuthenticationProvider,
@@ -11,6 +10,7 @@ import { RemovalPolicy } from 'aws-cdk-lib';
 export class CognitoConstruct extends Construct {
     public readonly userPool: UserPool;
     public readonly identityPool: IdentityPool;
+    public readonly clientID: string;
 
     constructor(scope: Construct, id: string) {
         super(scope, id);
@@ -49,5 +49,6 @@ export class CognitoConstruct extends Construct {
 
         this.userPool = userPool;
         this.identityPool = identityPool;
+        this.clientID = userPoolClient.userPoolClientId;
     }
 }

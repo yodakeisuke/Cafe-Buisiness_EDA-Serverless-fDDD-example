@@ -11,7 +11,9 @@ export class UILambdaConstruct extends Construct {
             scope: Construct, id: string,
             appsyncArn: string,
             appsyncUrl: string,
-            appsyncApiKey: string,
+            userPoolID: string,
+            identityPoolID: string,
+            clientID: string,
         ) {
         super(scope, id);
 
@@ -22,8 +24,10 @@ export class UILambdaConstruct extends Construct {
             memorySize: 256,
             timeout: Duration.seconds(30),
             environment: {
-                APPSYNC_URL: appsyncUrl,
-                APPSYNC_API_KEY: appsyncApiKey,
+                NEXT_PUBLIC_APPSYNC_URL: appsyncUrl,
+                NEXT_PUBLIC_COGNITO_IDENTITYPOOLID: identityPoolID,
+                NEXT_PUBLIC_COGNITO_USERPOOLID: userPoolID,
+                NEXT_PUBLIC_COGNITO_USERPOOLWEBCLIENTID: clientID,
             },
         });
 

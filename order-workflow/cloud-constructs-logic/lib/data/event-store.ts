@@ -1,25 +1,41 @@
 import { Construct } from 'constructs';
+import { AttributeType, TableV2, Billing, ProjectionType, StreamViewType } from 'aws-cdk-lib/aws-dynamodb';
+import { RemovalPolicy } from 'aws-cdk-lib';
+
 import * as events from 'aws-cdk-lib/aws-events';
 import { Rule, Match } from 'aws-cdk-lib/aws-events';
 import { CloudWatchLogGroup } from 'aws-cdk-lib/aws-events-targets';
 import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
-import { RemovalPolicy } from 'aws-cdk-lib';
-import { ITable } from 'aws-cdk-lib/aws-dynamodb';
 import { CfnPipe } from 'aws-cdk-lib/aws-pipes';
 import { Runtime, StartingPosition } from 'aws-cdk-lib/aws-lambda';
-// import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-// import { join } from 'path';
 
 
-export class CDCTableToBusConstruct extends Construct {
+export class EventStoreConstruct extends Construct {
+    public readonly orderedEventStore: TableV2;
+
     constructor(
             scope: Construct, id: string,
             centralEventBusArn: string,
-            sourceTable: ITable,
         ) {
 
         super(scope, id);
+
+        /* Event Store */
+        const orderedEventTable = new TableV2(this, 'OrderedEventTable', {
+            partitionKey: { name: 'UserID', type: AttributeType.STRING },
+            sortKey: { name: 'OrderDateTime', type: AttributeType.STRING },
+            billing: Billing.onDemand(),
+            removalPolicy: RemovalPolicy.DESTROY,
+            localSecondaryIndexes: [
+                {
+                    indexName: 'StatusIndex',
+                    sortKey: { name: 'Status', type: AttributeType.STRING },
+                    projectionType: ProjectionType.ALL,
+                },
+            ],
+            dynamoStream: StreamViewType.NEW_IMAGE
+        });
 
         /* Change Data Capture  */
         const centralEventBus = events.EventBus.fromEventBusArn(this, 'ExistingEventBusInOrder', centralEventBusArn);
@@ -36,7 +52,6 @@ export class CDCTableToBusConstruct extends Construct {
             eventBus: centralEventBus,
             ruleName: 'catch-ordered',  // todo: orderEventのみにする
             eventPattern: {
-
                 source:  Match.exists()
             },
         targets: [new CloudWatchLogGroup(orderLogGroup)]
@@ -52,14 +67,14 @@ export class CDCTableToBusConstruct extends Construct {
             assumedBy: new ServicePrincipal('pipes.amazonaws.com'),
         });
 
-        sourceTable.grantStreamRead(pipeRole);
+        orderedEventTable.grantStreamRead(pipeRole);
         centralEventBus.grantPutEventsTo(pipeRole);
 
         // Create new Pipe
         const pipe = new CfnPipe(this, 'ordered-pipe', {
             roleArn: pipeRole.roleArn,
             //@ts-ignore
-            source: sourceTable.tableStreamArn,
+            source: orderedEventTable.tableStreamArn,
             sourceParameters: {
             dynamoDbStreamParameters: {
                 startingPosition: StartingPosition.LATEST,
@@ -74,7 +89,7 @@ export class CDCTableToBusConstruct extends Construct {
             },
             },
             // enrichment: splitterFunc.functionArn,
-            target: centralEventBus.eventBusArn,
+            target: centralEventBusArn,
             targetParameters: {
                 eventBridgeEventBusParameters: {
                     detailType: 'Ordered',
@@ -82,5 +97,7 @@ export class CDCTableToBusConstruct extends Construct {
                 },
             },
         });
+
+        this.orderedEventStore = orderedEventTable;
     }
 }
