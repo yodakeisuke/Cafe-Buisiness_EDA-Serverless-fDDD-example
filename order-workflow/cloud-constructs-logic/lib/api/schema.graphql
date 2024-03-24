@@ -1,122 +1,200 @@
-﻿schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
+﻿input CreateOrderInput {
+	OrderDateTime: AWSDateTime!
+	OrderTransaction: AWSJSON!
+	Status: String!
+	UserID: ID!
 }
 
-type Mutation @aws_cognito_user_pools {
-  createOrder(input: CreateOrderInput!): Order
-  updateOrder(input: UpdateOrderInput!): Order
+input CreateOrderStateViewInput {
+	OrderID: String!
+	UserID: String!
+	Datetime: String!
+	Status: String!
+	OrderItem: AWSJSON!
 }
 
-type Order {
-  OrderDateTime: AWSDateTime!
-  OrderTransaction: AWSJSON!
-  Status: String!
-  UserID: ID!
-}
-
-type OrderConnection {
-  items: [Order]
-  nextToken: String
-}
-
-type Query @aws_cognito_user_pools {
-  getOrder(OrderDateTime: AWSDateTime!, UserID: ID!): Order
-  getOrdersByUserID(UserID: ID!): [Order]
-  listOrders(filter: TableOrderFilterInput, limit: Int, nextToken: String): OrderConnection
-  queryOrdersByUserIDStatusIndex(UserID: ID!, after: String, first: Int): OrderConnection
-}
-
-type Subscription @aws_cognito_user_pools {
-  onCreateOrder(OrderDateTime: AWSDateTime, OrderTransaction: AWSJSON, Status: String, UserID: ID): Order @aws_subscribe(mutations : ["createOrder"])
-  onUpdateOrder(OrderDateTime: AWSDateTime, OrderTransaction: AWSJSON, Status: String, UserID: ID): Order @aws_subscribe(mutations : ["updateOrder"])
-}
-
-input CreateOrderInput {
-  OrderDateTime: AWSDateTime!
-  OrderTransaction: AWSJSON!
-  Status: String!
-  UserID: ID!
+input DeleteOrderStateViewInput {
+	OrderID: String!
+	UserID: String!
 }
 
 input ModelSizeInput {
-  between: [Int]
-  eq: Int
-  ge: Int
-  gt: Int
-  le: Int
-  lt: Int
-  ne: Int
+	between: [Int]
+	eq: Int
+	ge: Int
+	gt: Int
+	le: Int
+	lt: Int
+	ne: Int
+}
+
+type Order {
+	OrderDateTime: AWSDateTime!
+	OrderTransaction: AWSJSON!
+	Status: String!
+	UserID: ID!
+}
+
+type OrderConnection {
+	items: [Order]
+	nextToken: String
+}
+
+type OrderStateView {
+	OrderID: String!
+	UserID: String!
+	Datetime: String!
+	Status: String!
+	OrderItem: AWSJSON!
+}
+
+type OrderStateViewConnection {
+	items: [OrderStateView]
+	nextToken: String
 }
 
 input TableBooleanFilterInput {
-  attributeExists: Boolean
-  eq: Boolean
-  ne: Boolean
+	attributeExists: Boolean
+	eq: Boolean
+	ne: Boolean
 }
 
 input TableFloatFilterInput {
-  attributeExists: Boolean
-  between: [Float]
-  eq: Float
-  ge: Float
-  gt: Float
-  le: Float
-  lt: Float
-  ne: Float
+	attributeExists: Boolean
+	between: [Float]
+	eq: Float
+	ge: Float
+	gt: Float
+	le: Float
+	lt: Float
+	ne: Float
 }
 
 input TableIDFilterInput {
-  attributeExists: Boolean
-  beginsWith: ID
-  between: [ID]
-  contains: ID
-  eq: ID
-  ge: ID
-  gt: ID
-  le: ID
-  lt: ID
-  ne: ID
-  notContains: ID
-  size: ModelSizeInput
+	attributeExists: Boolean
+	beginsWith: ID
+	between: [ID]
+	contains: ID
+	eq: ID
+	ge: ID
+	gt: ID
+	le: ID
+	lt: ID
+	ne: ID
+	notContains: ID
+	size: ModelSizeInput
 }
 
 input TableIntFilterInput {
-  attributeExists: Boolean
-  between: [Int]
-  eq: Int
-  ge: Int
-  gt: Int
-  le: Int
-  lt: Int
-  ne: Int
+	attributeExists: Boolean
+	between: [Int]
+	eq: Int
+	ge: Int
+	gt: Int
+	le: Int
+	lt: Int
+	ne: Int
 }
 
 input TableOrderFilterInput {
-  OrderDateTime: TableStringFilterInput
-  Status: TableStringFilterInput
-  UserID: TableIDFilterInput
+	OrderDateTime: TableStringFilterInput
+	Status: TableStringFilterInput
+	UserID: TableIDFilterInput
+}
+
+input TableOrderStateViewFilterInput {
+	OrderID: TableStringFilterInput
+	UserID: TableStringFilterInput
+	Status: TableStringFilterInput
 }
 
 input TableStringFilterInput {
-  attributeExists: Boolean
-  beginsWith: String
-  between: [String]
-  contains: String
-  eq: String
-  ge: String
-  gt: String
-  le: String
-  lt: String
-  ne: String
-  notContains: String
-  size: ModelSizeInput
+	attributeExists: Boolean
+	beginsWith: String
+	between: [String]
+	contains: String
+	eq: String
+	ge: String
+	gt: String
+	le: String
+	lt: String
+	ne: String
+	notContains: String
+	size: ModelSizeInput
 }
 
 input UpdateOrderInput {
-  OrderDateTime: AWSDateTime!
-  OrderTransaction: AWSJSON
-  Status: String
-  UserID: ID!
+	OrderDateTime: AWSDateTime!
+	OrderTransaction: AWSJSON
+	Status: String
+	UserID: ID!
+}
+
+input UpdateOrderStateViewInput {
+	OrderID: String!
+	UserID: String!
+	Status: String
+	OrderItem: AWSJSON
+}
+
+type Mutation @aws_cognito_user_pools {
+	createOrder(input: CreateOrderInput!): Order
+	updateOrder(input: UpdateOrderInput!): Order
+	createOrderStateView(input: CreateOrderStateViewInput!): OrderStateView
+	updateOrderStateView(input: UpdateOrderStateViewInput!): OrderStateView
+	deleteOrderStateView(input: DeleteOrderStateViewInput!): OrderStateView
+}
+
+type Query @aws_cognito_user_pools {
+	getOrder(OrderDateTime: AWSDateTime!, UserID: ID!): Order
+	getOrdersByUserID(UserID: ID!): [OrderStateView]
+	listOrders(filter: TableOrderFilterInput, limit: Int, nextToken: String): OrderConnection
+	queryOrdersByUserIDStatusIndex(UserID: ID!, after: String, first: Int): OrderConnection
+	getOrderStateView(UserID: String!, OrderID: String!): OrderStateView
+	listOrderStateViews(filter: TableOrderStateViewFilterInput, limit: Int, nextToken: String): OrderStateViewConnection
+	queryOrderStateViewsByStatusIndex(UserID: String!, first: Int, after: String): OrderStateViewConnection
+}
+
+type Subscription @aws_cognito_user_pools {
+	onCreateOrder(
+		OrderDateTime: AWSDateTime,
+		OrderTransaction: AWSJSON,
+		Status: String,
+		UserID: ID
+	): Order
+		@aws_subscribe(mutations: ["createOrder"])
+	onUpdateOrder(
+		OrderDateTime: AWSDateTime,
+		OrderTransaction: AWSJSON,
+		Status: String,
+		UserID: ID
+	): Order
+		@aws_subscribe(mutations: ["updateOrder"])
+	onCreateOrderStateView(
+		OrderID: String,
+		UserID: String,
+		Status: String,
+		OrderItem: AWSJSON
+	): OrderStateView
+		@aws_subscribe(mutations: ["createOrderStateView"])
+	onUpdateOrderStateView(
+		OrderID: String,
+		UserID: String,
+		Status: String,
+		OrderItem: AWSJSON
+	): OrderStateView
+		@aws_subscribe(mutations: ["updateOrderStateView"])
+	onDeleteOrderStateView(
+		OrderID: String,
+		UserID: String,
+		Status: String,
+		OrderItem: AWSJSON
+	): OrderStateView
+		@aws_subscribe(mutations: ["deleteOrderStateView"])
+}
+
+schema {
+	query: Query
+	mutation: Mutation
+	subscription: Subscription
 }

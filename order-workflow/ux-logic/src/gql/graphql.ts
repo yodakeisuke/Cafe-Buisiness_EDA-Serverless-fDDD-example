@@ -27,6 +27,19 @@ export type CreateOrderInput = {
   UserID: Scalars['ID']['input'];
 };
 
+export type CreateOrderStateViewInput = {
+  Datetime: Scalars['String']['input'];
+  OrderID: Scalars['String']['input'];
+  OrderItem: Scalars['AWSJSON']['input'];
+  Status: Scalars['String']['input'];
+  UserID: Scalars['String']['input'];
+};
+
+export type DeleteOrderStateViewInput = {
+  OrderID: Scalars['String']['input'];
+  UserID: Scalars['String']['input'];
+};
+
 export type ModelSizeInput = {
   between?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   eq?: InputMaybe<Scalars['Int']['input']>;
@@ -40,7 +53,10 @@ export type ModelSizeInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   createOrder?: Maybe<Order>;
+  createOrderStateView?: Maybe<OrderStateView>;
+  deleteOrderStateView?: Maybe<OrderStateView>;
   updateOrder?: Maybe<Order>;
+  updateOrderStateView?: Maybe<OrderStateView>;
 };
 
 
@@ -49,8 +65,23 @@ export type MutationCreateOrderArgs = {
 };
 
 
+export type MutationCreateOrderStateViewArgs = {
+  input: CreateOrderStateViewInput;
+};
+
+
+export type MutationDeleteOrderStateViewArgs = {
+  input: DeleteOrderStateViewInput;
+};
+
+
 export type MutationUpdateOrderArgs = {
   input: UpdateOrderInput;
+};
+
+
+export type MutationUpdateOrderStateViewArgs = {
+  input: UpdateOrderStateViewInput;
 };
 
 export type Order = {
@@ -67,11 +98,29 @@ export type OrderConnection = {
   nextToken?: Maybe<Scalars['String']['output']>;
 };
 
+export type OrderStateView = {
+  __typename?: 'OrderStateView';
+  Datetime: Scalars['String']['output'];
+  OrderID: Scalars['String']['output'];
+  OrderItem: Scalars['AWSJSON']['output'];
+  Status: Scalars['String']['output'];
+  UserID: Scalars['String']['output'];
+};
+
+export type OrderStateViewConnection = {
+  __typename?: 'OrderStateViewConnection';
+  items?: Maybe<Array<Maybe<OrderStateView>>>;
+  nextToken?: Maybe<Scalars['String']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   getOrder?: Maybe<Order>;
-  getOrdersByUserID?: Maybe<Array<Maybe<Order>>>;
+  getOrderStateView?: Maybe<OrderStateView>;
+  getOrdersByUserID?: Maybe<Array<Maybe<OrderStateView>>>;
+  listOrderStateViews?: Maybe<OrderStateViewConnection>;
   listOrders?: Maybe<OrderConnection>;
+  queryOrderStateViewsByStatusIndex?: Maybe<OrderStateViewConnection>;
   queryOrdersByUserIDStatusIndex?: Maybe<OrderConnection>;
 };
 
@@ -82,8 +131,21 @@ export type QueryGetOrderArgs = {
 };
 
 
+export type QueryGetOrderStateViewArgs = {
+  OrderID: Scalars['String']['input'];
+  UserID: Scalars['String']['input'];
+};
+
+
 export type QueryGetOrdersByUserIdArgs = {
   UserID: Scalars['ID']['input'];
+};
+
+
+export type QueryListOrderStateViewsArgs = {
+  filter?: InputMaybe<TableOrderStateViewFilterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  nextToken?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -91,6 +153,13 @@ export type QueryListOrdersArgs = {
   filter?: InputMaybe<TableOrderFilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   nextToken?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryQueryOrderStateViewsByStatusIndexArgs = {
+  UserID: Scalars['String']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -103,7 +172,10 @@ export type QueryQueryOrdersByUserIdStatusIndexArgs = {
 export type Subscription = {
   __typename?: 'Subscription';
   onCreateOrder?: Maybe<Order>;
+  onCreateOrderStateView?: Maybe<OrderStateView>;
+  onDeleteOrderStateView?: Maybe<OrderStateView>;
   onUpdateOrder?: Maybe<Order>;
+  onUpdateOrderStateView?: Maybe<OrderStateView>;
 };
 
 
@@ -115,11 +187,35 @@ export type SubscriptionOnCreateOrderArgs = {
 };
 
 
+export type SubscriptionOnCreateOrderStateViewArgs = {
+  OrderID?: InputMaybe<Scalars['String']['input']>;
+  OrderItem?: InputMaybe<Scalars['AWSJSON']['input']>;
+  Status?: InputMaybe<Scalars['String']['input']>;
+  UserID?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type SubscriptionOnDeleteOrderStateViewArgs = {
+  OrderID?: InputMaybe<Scalars['String']['input']>;
+  OrderItem?: InputMaybe<Scalars['AWSJSON']['input']>;
+  Status?: InputMaybe<Scalars['String']['input']>;
+  UserID?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type SubscriptionOnUpdateOrderArgs = {
   OrderDateTime?: InputMaybe<Scalars['AWSDateTime']['input']>;
   OrderTransaction?: InputMaybe<Scalars['AWSJSON']['input']>;
   Status?: InputMaybe<Scalars['String']['input']>;
   UserID?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type SubscriptionOnUpdateOrderStateViewArgs = {
+  OrderID?: InputMaybe<Scalars['String']['input']>;
+  OrderItem?: InputMaybe<Scalars['AWSJSON']['input']>;
+  Status?: InputMaybe<Scalars['String']['input']>;
+  UserID?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type TableBooleanFilterInput = {
@@ -171,6 +267,12 @@ export type TableOrderFilterInput = {
   UserID?: InputMaybe<TableIdFilterInput>;
 };
 
+export type TableOrderStateViewFilterInput = {
+  OrderID?: InputMaybe<TableStringFilterInput>;
+  Status?: InputMaybe<TableStringFilterInput>;
+  UserID?: InputMaybe<TableStringFilterInput>;
+};
+
 export type TableStringFilterInput = {
   attributeExists?: InputMaybe<Scalars['Boolean']['input']>;
   beginsWith?: InputMaybe<Scalars['String']['input']>;
@@ -193,12 +295,13 @@ export type UpdateOrderInput = {
   UserID: Scalars['ID']['input'];
 };
 
-export type ListAllOrdersByUserQueryVariables = Exact<{
-  UserID: Scalars['ID']['input'];
-}>;
-
-
-export type ListAllOrdersByUserQuery = { __typename?: 'Query', getOrdersByUserID?: Array<{ __typename?: 'Order', OrderDateTime: any, OrderTransaction: any, Status: string, UserID: string } | null> | null };
+export type UpdateOrderStateViewInput = {
+  Datetime?: InputMaybe<Scalars['String']['input']>;
+  OrderID: Scalars['String']['input'];
+  OrderItem?: InputMaybe<Scalars['AWSJSON']['input']>;
+  Status?: InputMaybe<Scalars['String']['input']>;
+  UserID: Scalars['String']['input'];
+};
 
 export type CreateOrderMutationVariables = Exact<{
   input: CreateOrderInput;
@@ -207,6 +310,13 @@ export type CreateOrderMutationVariables = Exact<{
 
 export type CreateOrderMutation = { __typename?: 'Mutation', createOrder?: { __typename?: 'Order', OrderDateTime: any, OrderTransaction: any, Status: string, UserID: string } | null };
 
+export type ListAllOrdersByUserQueryVariables = Exact<{
+  UserID: Scalars['ID']['input'];
+}>;
 
-export const ListAllOrdersByUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListAllOrdersByUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getOrdersByUserID"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"UserID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OrderDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"OrderTransaction"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"UserID"}}]}}]}}]} as unknown as DocumentNode<ListAllOrdersByUserQuery, ListAllOrdersByUserQueryVariables>;
+
+export type ListAllOrdersByUserQuery = { __typename?: 'Query', getOrdersByUserID?: Array<{ __typename?: 'OrderStateView', UserID: string, OrderID: string, OrderItem: any, Status: string, Datetime: string } | null> | null };
+
+
 export const CreateOrderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrder"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrderInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OrderDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"OrderTransaction"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"UserID"}}]}}]}}]} as unknown as DocumentNode<CreateOrderMutation, CreateOrderMutationVariables>;
+export const ListAllOrdersByUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListAllOrdersByUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getOrdersByUserID"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"UserID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"UserID"}},{"kind":"Field","name":{"kind":"Name","value":"OrderID"}},{"kind":"Field","name":{"kind":"Name","value":"OrderItem"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"Datetime"}}]}}]}}]} as unknown as DocumentNode<ListAllOrdersByUserQuery, ListAllOrdersByUserQueryVariables>;

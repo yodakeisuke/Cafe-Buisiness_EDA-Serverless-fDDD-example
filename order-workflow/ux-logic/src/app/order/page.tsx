@@ -13,7 +13,7 @@ export default async function Home() {
         gap-1
       "
     >
-      <ContentArea className="grid place-items-center row-span-1">
+      <ContentArea className="grid place-items-center row-span-1 mt-6 md: mt-0">
         <OrderForm />
       </ContentArea>
       <ContentArea className="row-span-auto">

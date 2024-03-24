@@ -13,8 +13,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n": types.ListAllOrdersByUserDocument,
     "\n  mutation CreateOrder ($input: CreateOrderInput!) {\n    createOrder(input: $input) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n": types.CreateOrderDocument,
+    "\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      UserID\n      OrderID\n      OrderItem\n      Status\n      Datetime\n    }\n  }\n": types.ListAllOrdersByUserDocument,
 };
 
 /**
@@ -34,11 +34,11 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n"): (typeof documents)["\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n"];
+export function graphql(source: "\n  mutation CreateOrder ($input: CreateOrderInput!) {\n    createOrder(input: $input) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n"): (typeof documents)["\n  mutation CreateOrder ($input: CreateOrderInput!) {\n    createOrder(input: $input) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation CreateOrder ($input: CreateOrderInput!) {\n    createOrder(input: $input) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n"): (typeof documents)["\n  mutation CreateOrder ($input: CreateOrderInput!) {\n    createOrder(input: $input) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n"];
+export function graphql(source: "\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      UserID\n      OrderID\n      OrderItem\n      Status\n      Datetime\n    }\n  }\n"): (typeof documents)["\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      UserID\n      OrderID\n      OrderItem\n      Status\n      Datetime\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

@@ -9,7 +9,7 @@ import { ListAllOrdersByUserQuery } from '@/lib/query';
 
 import { ScrollArea } from "@/app/_components/ui/scroll-area"
 
-import { ORDERS, Order } from './models';
+import { Order, transformAndValidateOrders } from './models';
 import { OrderStateItem } from './OrderStateItem';
 
 
@@ -22,14 +22,16 @@ const handleSubscription = (messages = [], response: any) => {
 export const OrderStatus = ()  => {
   return (
     <Suspense>
-      <OrderStatusList />
+      <ScrollArea>
+        <OrderStatusList />
+      </ScrollArea>
     </Suspense>
   );
 }
 // TODO: cache refresh
 export const OrderStatusList: React.FC = async () => {
-  const a = cookies() // TODO: 無理やり動的にしないと親のrefreshで更新しない。要追加調査。
-  const result = await getClient().query(
+  const placeholder = cookies() // TODO: 無理やり動的にしないと親のrefreshで更新しない。要追加調査。
+  const orderListResult = await getClient().query(
     ListAllOrdersByUserQuery,
     { UserID: "user_987654321" },
     {
@@ -37,6 +39,9 @@ export const OrderStatusList: React.FC = async () => {
       requestPolicy: 'network-only',
     }
   );
+  const data = orderListResult.data?.getOrdersByUserID
+  const orders = transformAndValidateOrders(data);
+
   // const subRes  = useSubscription({ query: newMessages }, handleSubscription);
 
   return (
@@ -46,19 +51,20 @@ export const OrderStatusList: React.FC = async () => {
         max-h-52 md:max-h-screen w-full overflow-hidden
       "
     >
-      <h2 className="font-semibold text-1xl py-3 px-2">
-        Current Order Status graph try
-        {result.data?.getOrdersByUserID?.length}
+      <h2 className="text-1xl py-3 px-1 font-bold text-gray-800 dark:text-gray-200">
+        Current Order Status
       </h2>
-      <ul>
-        {result.data?.getOrdersByUserID?.map((item) => (
-          <li key={item?.OrderDateTime}>{item?.OrderDateTime}{item?.Status}{item?.UserID}{item?.OrderTransaction}</li>
-        ))}
-        </ul>
       <div className="flex-1 overflow-auto">
         <div className="flex flex-col space-y-4">
-          {ORDERS.map((order: Order, index: number) => (
-            <OrderStateItem key={index} order={order} />
+          {orders.map( order => (
+            <OrderStateItem
+              key={order.orderID}
+              order={{
+                drink: order.drink,
+                state: order.state,
+                datetime: order.datetime,
+              }}
+            />
           ))}
         </div>
       </div>

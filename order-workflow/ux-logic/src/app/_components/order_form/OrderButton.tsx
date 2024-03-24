@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { CreateOrderMutation } from '@/lib/query';
 import { useMutation } from '@urql/next';
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/app/_components/ui/button"
 
 interface OrderProps {
   item: string;

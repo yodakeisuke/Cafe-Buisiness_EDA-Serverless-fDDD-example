@@ -21,6 +21,7 @@
     "aws-amplify": "^6.0.21",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "date-fns": "^3.6.0",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.15.0",
     "lucide-react": "^0.354.0",
@@ -30,7 +31,8 @@
     "sharp": "^0.33.2",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "urql": "^4.0.6"
+    "urql": "^4.0.6",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",

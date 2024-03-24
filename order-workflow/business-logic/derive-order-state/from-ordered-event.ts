@@ -10,11 +10,12 @@ export async function handler(event: EventBridgeEvent<'Ordered', any>) {
     const dynamoRecord = detail.dynamodb.NewImage;
 
     const userId = dynamoRecord.UserID.S;
-    const orderId = userId + dynamoRecord.OrderDateTime.S;
+    const datetime = dynamoRecord.OrderDateTime.S;
 
     const itemData = {
         UserID: userId as string,
-        OrderID: orderId as string,
+        OrderID: userId + datetime as string,
+        Datetime: datetime as string,
         Status: dynamoRecord.Status.S as string,
         OrderItem: {
             item: dynamoRecord.OrderTransaction.M.item.S as string,
@@ -30,9 +31,10 @@ export async function handler(event: EventBridgeEvent<'Ordered', any>) {
             'UserID': { S: itemData.UserID },
             'OrderID': { S: itemData.OrderID }
         },
-        UpdateExpression: 'SET #status = :status, OrderItem = :orderItem',
+        UpdateExpression: 'SET #status = :status, OrderItem = :orderItem, #datetime = :datetime',
         ExpressionAttributeNames: {
-            '#status': 'Status'
+            '#status': 'Status',
+            '#datetime': 'Datetime'
         },
         ExpressionAttributeValues: {
             ':status': { S: itemData.Status },
@@ -40,7 +42,8 @@ export async function handler(event: EventBridgeEvent<'Ordered', any>) {
                 item: { S: itemData.OrderItem.item },
                 size: { S: itemData.OrderItem.size },
                 price: { S: itemData.OrderItem.price }
-            }}
+            }},
+            ':datetime': { S: itemData.Datetime }
         },
         ReturnValues: 'UPDATED_NEW' as const
     };
