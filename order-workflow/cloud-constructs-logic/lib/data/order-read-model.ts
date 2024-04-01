@@ -22,7 +22,10 @@ export class ReadModelConstruct extends Construct {
 
         super(scope, id);
 
-        const centralEventBus = events.EventBus.fromEventBusArn(this, 'ExistingEventBusInOrder', centralEventBusArn);
+        const centralEventBus = events.EventBus.fromEventBusArn(
+            this, 'ExistingEventBusInOrder',
+            centralEventBusArn,
+        );
 
         /* Read Model */
         const orderStateView = new TableV2(this, 'OrderStateCacheTable', {
@@ -40,7 +43,7 @@ export class ReadModelConstruct extends Construct {
         });
 
         /* Derive from Event */
-        const userCreatedConsumer: NodejsFunction = new NodejsFunction(this, 'orderedConsumer', {
+        const OrderedConsumer = new NodejsFunction(this, 'orderedConsumer', {
             memorySize: 1024,
             timeout: Duration.seconds(5),
             runtime: Runtime.NODEJS_20_X,
@@ -54,7 +57,22 @@ export class ReadModelConstruct extends Construct {
             }
         });
 
-        orderStateView.grantReadWriteData(userCreatedConsumer);
+        const PaidConsumer = new NodejsFunction(this, 'paidConsumerInOrder', {
+            memorySize: 1024,
+            timeout: Duration.seconds(5),
+            runtime: Runtime.NODEJS_20_X,
+            handler: 'handler',
+            entry: join(__dirname, '../../../business-logic/derive-order-state/from-paid-event.ts'),
+            bundling: {
+                forceDockerBundling: false,
+            },
+            environment: {
+                TABLE_NAME: orderStateView.tableName,
+            }
+        });
+
+        orderStateView.grantReadWriteData(OrderedConsumer);
+        orderStateView.grantReadWriteData(PaidConsumer);
 
         new Rule(this, 'OrderedRule', {
             description: 'Listen to all Ordered events',
@@ -63,7 +81,15 @@ export class ReadModelConstruct extends Construct {
                 detailType: ['Ordered']
             },
             eventBus: centralEventBus,
-        }).addTarget(new LambdaFunction(userCreatedConsumer));
+        }).addTarget(new LambdaFunction(OrderedConsumer));
+        new Rule(this, 'PaidRule', {
+            description: 'Listen to all Paid events',
+            eventPattern: {
+                source: ['cafe.payment'],
+                detailType: ['Paid']
+            },
+            eventBus: centralEventBus,
+        }).addTarget(new LambdaFunction(PaidConsumer));
 
         this.orderStateView = orderStateView;
     }

@@ -2,8 +2,8 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { CognitoConstruct } from './auth/cognito';
-import { EventStoreConstruct } from './data/event-store';
-import { ReadModelConstruct } from './data/read-model'
+import { EventStoreConstruct } from './data/order-event-store';
+import { ReadModelConstruct } from './data/order-read-model'
 import { AppSyncConstruct } from './api/appsync';
 import { UILambdaConstruct } from './ui/ui-lambda';
 
@@ -24,12 +24,12 @@ export class OrderWorkflowStack extends Stack {
 
         const dataLayerFact = new EventStoreConstruct(
             this, 'OrderDataResource',
-            props.config.centralEbentBusARN,
+            props.config.centralEventBusARN,
         );
 
         const dataLayerView = new ReadModelConstruct(
             this, 'OrderStateCache',
-            props.config.centralEbentBusARN,
+            props.config.centralEventBusARN,
         )
 
         const apiLayer =  new AppSyncConstruct(

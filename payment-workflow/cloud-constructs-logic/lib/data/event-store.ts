@@ -3,7 +3,7 @@ import { AttributeType, TableV2, Billing, ProjectionType, StreamViewType } from 
 import { RemovalPolicy } from 'aws-cdk-lib';
 
 import * as events from 'aws-cdk-lib/aws-events';
-import { Rule, Match } from 'aws-cdk-lib/aws-events';
+import { Rule } from 'aws-cdk-lib/aws-events';
 import { CloudWatchLogGroup } from 'aws-cdk-lib/aws-events-targets';
 import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
@@ -11,8 +11,8 @@ import { CfnPipe } from 'aws-cdk-lib/aws-pipes';
 import { Runtime, StartingPosition } from 'aws-cdk-lib/aws-lambda';
 
 
-export class EventStoreConstruct extends Construct {
-    public readonly orderedEventStore: TableV2;
+export class PaymentEventStoreConstruct extends Construct {
+    public readonly PaymentEventStore: TableV2;
 
     constructor(
             scope: Construct, id: string,
@@ -22,15 +22,15 @@ export class EventStoreConstruct extends Construct {
         super(scope, id);
 
         /* Event Store */
-        const orderedEventTable = new TableV2(this, 'OrderedEventTable', {
+        const PaidEventTable = new TableV2(this, 'PaidEventTable', {
             partitionKey: { name: 'UserID', type: AttributeType.STRING },
-            sortKey: { name: 'OrderDateTime', type: AttributeType.STRING },
+            sortKey: { name: 'PaymentDateTime', type: AttributeType.STRING },
             billing: Billing.onDemand(),
             removalPolicy: RemovalPolicy.DESTROY,
             localSecondaryIndexes: [
                 {
-                    indexName: 'StatusIndex',
-                    sortKey: { name: 'Status', type: AttributeType.STRING },
+                    indexName: 'ChargeResultIndex',
+                    sortKey: { name: 'ChargeResult', type: AttributeType.STRING },
                     projectionType: ProjectionType.ALL,
                 },
             ],
@@ -38,24 +38,28 @@ export class EventStoreConstruct extends Construct {
         });
 
         /* Change Data Capture  */
-        const centralEventBus = events.EventBus.fromEventBusArn(this, 'ExistingEventBusInOrder', centralEventBusArn);
+        const centralEventBus = events.EventBus.fromEventBusArn(
+            this, 'ExistingEventBusInPayment',
+            centralEventBusArn
+        );
 
         // log group to see output
-        const orderLogGroup = new LogGroup(this, 'ordered-log', {
-            logGroupName: '/aws/events/ordered',
+        const orderLogGroup = new LogGroup(this, 'Paid-log', {
+            logGroupName: '/aws/events/Paid',
             retention: RetentionDays.ONE_DAY,
             removalPolicy: RemovalPolicy.DESTROY
         });
 
         // Rule that matches any incoming event and sends it to a logGroup
-        const catchAll = new Rule(this, 'send-to-ordered-log', {
+        const catchAll = new Rule(this, 'send-to-Paid-log', {
             eventBus: centralEventBus,
-            ruleName: 'catch-ordered',  // todo: orderEventのみにする
+            ruleName: 'catch-Paid',
             eventPattern: {
-                source:  Match.exists()
+                source: ['cafe.payment'],
+                detailType: ['Paid']
             },
-        targets: [new CloudWatchLogGroup(orderLogGroup)]
-        } );
+            targets: [new CloudWatchLogGroup(orderLogGroup)]
+        });
 
         const eventBridgeRole = new Role(this, 'events-role', {
             assumedBy: new ServicePrincipal('events.amazonaws.com'),
@@ -63,18 +67,18 @@ export class EventStoreConstruct extends Construct {
 
         orderLogGroup.grantWrite(eventBridgeRole);
 
-        const pipeRole = new Role(this, 'pipe-role', {
+        const pipeRole = new Role(this, 'pipe-role-payment', {
             assumedBy: new ServicePrincipal('pipes.amazonaws.com'),
         });
 
-        orderedEventTable.grantStreamRead(pipeRole);
+        PaidEventTable.grantStreamRead(pipeRole);
         centralEventBus.grantPutEventsTo(pipeRole);
 
         // Create new Pipe
-        const pipe = new CfnPipe(this, 'ordered-pipe', {
+        const pipe = new CfnPipe(this, 'Paid-pipe', {
             roleArn: pipeRole.roleArn,
             //@ts-ignore
-            source: orderedEventTable.tableStreamArn,
+            source: PaidEventTable.tableStreamArn,
             sourceParameters: {
             dynamoDbStreamParameters: {
                 startingPosition: StartingPosition.LATEST,
@@ -92,12 +96,12 @@ export class EventStoreConstruct extends Construct {
             target: centralEventBusArn,
             targetParameters: {
                 eventBridgeEventBusParameters: {
-                    detailType: 'Ordered',
-                    source: 'cafe.order',
+                    detailType: 'Paid',
+                    source: 'cafe.payment',
                 },
             },
         });
 
-        this.orderedEventStore = orderedEventTable;
+        this.PaymentEventStore = PaidEventTable;
     }
 }

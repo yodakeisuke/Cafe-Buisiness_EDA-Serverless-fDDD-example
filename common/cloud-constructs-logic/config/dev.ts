@@ -1,5 +1,5 @@
 import { Config } from './type'
 
 export const DEVConfig: Config = {
-  centralEbentBusARN: "arn:aws:events:ap-northeast-1:561497977866:event-bus/cafe-business-central-bus"
+  centralEventBusARN: "arn:aws:events:ap-northeast-1:561497977866:event-bus/cafe-business-central-bus"
 }

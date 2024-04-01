@@ -5,7 +5,7 @@ type Drink = {
   size: "s" | "m" | "l" | "-";
   price: string;
 }
-type OrderState = "Pending" | "Preparing" | "Ready" | "Failed" | "Canceled" | "Delivered" | "New"
+type OrderState = "Pending" | "Paid" | "Preparing" | "Ready" | "Failed" | "Canceled" | "Delivered"
 export type Order =  {
   drink: Drink;
   state: OrderState;
@@ -17,7 +17,8 @@ export type AcceptedOrder = Order & { orderID: string; };
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
-const OrderStateSchema = z.enum(["Pending", "Preparing", "Ready", "Failed", "Canceled", "Delivered", "New"]);
+// TODO: これの列挙共通化
+const OrderStateSchema = z.enum(["Pending", "Paid", "Preparing", "Ready", "Failed", "Canceled", "Delivered"]);
 const DrinkTypeSchema = z.enum(["Esspresso", "Latte", "Tea", "-"]);
 const DrinkSchema = z.object({
   type: DrinkTypeSchema,

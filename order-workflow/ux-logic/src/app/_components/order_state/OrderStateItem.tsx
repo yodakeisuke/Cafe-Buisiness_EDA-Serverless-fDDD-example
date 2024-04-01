@@ -15,7 +15,7 @@ export const OrderStateItem: React.FC<{ order: Order }> = ({ order }) => {
         <div className="flex items-center gap-1">
           <PackageIcon className="h-4 w-4 text-green-500" />
           <div className="flex flex-col">
-            <span className="font-medium text-sm">Processing</span>
+            <span className="font-medium text-sm">{order.state}</span>
           </div>
         </div>
         <div className="border-t pt-2">
