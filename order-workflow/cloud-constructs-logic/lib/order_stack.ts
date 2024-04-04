@@ -8,9 +8,14 @@ import { AppSyncConstruct } from './api/appsync';
 import { UILambdaConstruct } from './ui/ui-lambda';
 
 import { Config } from '../../../common/cloud-constructs-logic/config/type'
+import { PaidDeriverConstruct } from './data/paid-event-deriver';
 
-
+interface Env {
+    account: string;
+    region: string;
+}
 interface OrderWorkflowStackProps extends StackProps {
+    env: Env;
     config: Config;
 }
 
@@ -38,6 +43,17 @@ export class OrderWorkflowStack extends Stack {
             auth.identityPool,
             dataLayerFact.orderedEventStore,
             dataLayerView.orderStateView,
+        )
+
+        const paidEventPusher = new PaidDeriverConstruct(
+            this, 'PaidEventDeriver',
+            props.config.centralEventBusARN,
+            props.env,
+            {
+                arn: apiLayer.graphqlApiArn,
+                url: apiLayer.graphqlApiUrl,
+                apiKey: apiLayer.graphqlApiKey,
+            }
         )
 
         const uiLayer = new UILambdaConstruct(

@@ -2,7 +2,6 @@ import React from 'react';
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
 
-import { useSubscription } from '@urql/next';
 import { registerUrql } from '@urql/next/rsc';
 import { serverSideClient } from '@/lib/dataAccessClient/serverSide';
 import { ListAllOrdersByUserQuery } from '@/lib/query';
@@ -14,10 +13,6 @@ import { OrderStateItem } from './OrderStateItem';
 
 
 const { getClient } = registerUrql(serverSideClient);
-
-const handleSubscription = (messages = [], response: any) => {
-  return [response.newMessages, ...messages];
-};
 
 export const OrderStatus = ()  => {
   return (

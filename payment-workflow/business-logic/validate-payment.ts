@@ -9,7 +9,7 @@ export async function handler(event: EventBridgeEvent<'Ordered', any>) {
     const invoice =  {
         UserID: userID,
         OrderID: userID + orderInfo.NewImage.OrderDateTime.S,
-        ChargeResult: 'Fullfilled',
+        ChargeResult: 'Paid',
         OrderTransaction: orderInfo.NewImage.OrderTransaction.M,
     }
 

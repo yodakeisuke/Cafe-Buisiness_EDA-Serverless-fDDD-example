@@ -20,6 +20,7 @@ import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 export class AppSyncConstruct extends Construct {
     public readonly graphqlApiArn: string;
     public readonly graphqlApiUrl: string;
+    public readonly graphqlApiKey: string;
 
     constructor(
             scope: Construct, id: string,
@@ -34,7 +35,7 @@ export class AppSyncConstruct extends Construct {
         // AppSync GraphQL API
         const OrderAppSyncApi = new GraphqlApi(this, 'OrderAppSyncApi', {
             name: 'OrderAppsyncAPI',
-            definition: Definition.fromFile(join(__dirname, 'schema.graphql')),
+            definition: Definition.fromFile(join(__dirname, '../../../schema.graphql')),
             authorizationConfig: {
                 defaultAuthorization: {
                     authorizationType: AuthorizationType.USER_POOL,
@@ -53,7 +54,6 @@ export class AppSyncConstruct extends Construct {
                 fieldLogLevel: FieldLogLevel.ALL
             },
         });
-
         OrderAppSyncApi.grantQuery(identityPool.unauthenticatedRole, 'getOrdersByUserID')
 
         // AppSync Data Source -> DynamoDB table
@@ -72,7 +72,15 @@ export class AppSyncConstruct extends Construct {
             name: 'createOrderFunction',
             api: OrderAppSyncApi,
             dataSource: EventStoreSource,
-            code: Code.fromAsset(join(__dirname, '/mappings/ordered-store/Mutation.createOrder.js')),
+            code: Code.fromAsset(join(__dirname, '../../../business-logic/resolver/ordered-store/Mutation.createOrder.js')),
+            runtime: FunctionRuntime.JS_1_0_0,
+        });
+
+        const updateOrderStateViewFunction = new AppsyncFunction(this, 'updateOrderStateViewFunction', {
+            name: 'updateOrderStateViewFunction',
+            api: OrderAppSyncApi,
+            dataSource: ViewCacheSource,
+            code: Code.fromAsset(join(__dirname, '../../../business-logic/resolver/ordered-view-cache//Mutation.updateOrderStateView.js')),
             runtime: FunctionRuntime.JS_1_0_0,
         });
 
@@ -84,7 +92,7 @@ export class AppSyncConstruct extends Construct {
                 api: OrderAppSyncApi,
                 dataSource: ViewCacheSource,
                 code: Code.fromAsset(
-                    join(__dirname, '/mappings/ordered-view-cache/Query.getOrderListByUser.js')
+                    join(__dirname, '../../../business-logic/resolver/ordered-view-cache/Query.getOrderListByUser.js')
                 ),
                 runtime: FunctionRuntime.JS_1_0_0,
             }
@@ -110,6 +118,15 @@ export class AppSyncConstruct extends Construct {
             code: passthrough,
         });
 
+        const updateOrderStateViewResolver = new Resolver(this, 'updateOrderStateViewResolver', {
+            api: OrderAppSyncApi,
+            typeName: 'Mutation',
+            fieldName: 'updateOrderStateView',
+            runtime: FunctionRuntime.JS_1_0_0,
+            pipelineConfig: [updateOrderStateViewFunction],
+            code: passthrough,
+        });
+
         const getOrderListByUserResolver = new Resolver(
             this,
             'getOrderListByUserResolver',
@@ -125,5 +142,6 @@ export class AppSyncConstruct extends Construct {
 
         this.graphqlApiArn = OrderAppSyncApi.arn;
         this.graphqlApiUrl = OrderAppSyncApi.graphqlUrl;
+        this.graphqlApiKey = OrderAppSyncApi.apiKey || '';
     }
 }
