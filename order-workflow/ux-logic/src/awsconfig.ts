@@ -8,4 +8,11 @@ export const config: ResourcesConfig = {
       userPoolClientId: process.env.NEXT_PUBLIC_COGNITO_USERPOOLWEBCLIENTID || "",
 		},
 	},
+   API: {
+      GraphQL: {
+         endpoint: process.env.NEXT_PUBLIC_APPSYNC_URL || "",
+         region: 'ap-northeast-1',
+         defaultAuthMode: 'userPool',
+      }
+   }
 };

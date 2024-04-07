@@ -23,14 +23,12 @@ export const ListAllOrdersByUserQuery = graphql(`
   }
 `)
 
-
-/*
-subscription MySubscription {
-  onCreateOrder(UserID: "user_987654321") {
-    OrderDateTime
-    OrderTransaction
-    Status
-    UserID
+export const onUpdateOrderStateViewByUser = graphql(`
+  subscription onUpdateOrderStateView($userID: String!) {
+    onUpdateOrderStateView(UserID: $userID) {
+      OrderID
+      UserID
+      Status
+    }
   }
-}
-*/
+`);

@@ -212,9 +212,6 @@ export type SubscriptionOnUpdateOrderArgs = {
 
 
 export type SubscriptionOnUpdateOrderStateViewArgs = {
-  OrderID?: InputMaybe<Scalars['String']['input']>;
-  OrderItem?: InputMaybe<Scalars['AWSJSON']['input']>;
-  Status?: InputMaybe<Scalars['String']['input']>;
   UserID?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -296,7 +293,6 @@ export type UpdateOrderInput = {
 };
 
 export type UpdateOrderStateViewInput = {
-  Datetime?: InputMaybe<Scalars['String']['input']>;
   OrderID: Scalars['String']['input'];
   OrderItem?: InputMaybe<Scalars['AWSJSON']['input']>;
   Status?: InputMaybe<Scalars['String']['input']>;
@@ -317,6 +313,14 @@ export type ListAllOrdersByUserQueryVariables = Exact<{
 
 export type ListAllOrdersByUserQuery = { __typename?: 'Query', getOrdersByUserID?: Array<{ __typename?: 'OrderStateView', UserID: string, OrderID: string, OrderItem: any, Status: string, Datetime: string } | null> | null };
 
+export type OnUpdateOrderStateViewSubscriptionVariables = Exact<{
+  userID: Scalars['String']['input'];
+}>;
+
+
+export type OnUpdateOrderStateViewSubscription = { __typename?: 'Subscription', onUpdateOrderStateView?: { __typename?: 'OrderStateView', OrderID: string, UserID: string, Status: string } | null };
+
 
 export const CreateOrderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrder"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrderInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OrderDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"OrderTransaction"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"UserID"}}]}}]}}]} as unknown as DocumentNode<CreateOrderMutation, CreateOrderMutationVariables>;
 export const ListAllOrdersByUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListAllOrdersByUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getOrdersByUserID"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"UserID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"UserID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"UserID"}},{"kind":"Field","name":{"kind":"Name","value":"OrderID"}},{"kind":"Field","name":{"kind":"Name","value":"OrderItem"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}},{"kind":"Field","name":{"kind":"Name","value":"Datetime"}}]}}]}}]} as unknown as DocumentNode<ListAllOrdersByUserQuery, ListAllOrdersByUserQueryVariables>;
+export const OnUpdateOrderStateViewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"onUpdateOrderStateView"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"onUpdateOrderStateView"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"UserID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OrderID"}},{"kind":"Field","name":{"kind":"Name","value":"UserID"}},{"kind":"Field","name":{"kind":"Name","value":"Status"}}]}}]}}]} as unknown as DocumentNode<OnUpdateOrderStateViewSubscription, OnUpdateOrderStateViewSubscriptionVariables>;

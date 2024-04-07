@@ -82,7 +82,7 @@ export class PaidDeriverConstruct extends Construct {
               roleArn: ebRuleRole.roleArn,
               deadLetterConfig: { arn: deadLetterQueue.queueArn },
               appSyncParameters: { // TODO: クエリ置き場を考慮（本来は自動生成かな？）
-                graphQlOperation: /* GraphQL */
+                graphQlOperation: /* GraphQL *///ここ改行とかなしでやってみる
                 `mutation UpdateOrderStateView ($input: UpdateOrderStateViewInput!) {
                   updateOrderStateView(input: $input) {
                     UserID
@@ -103,6 +103,7 @@ export class PaidDeriverConstruct extends Construct {
                         "OrderID": "<orderId>",
                         "UserID": "<userId>",
                         "Status": `<chargeResult>`,
+                        "OrderItem": 'false',
                     }
                 })
               },

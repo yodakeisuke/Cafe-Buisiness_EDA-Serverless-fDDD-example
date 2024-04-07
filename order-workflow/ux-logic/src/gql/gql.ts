@@ -15,6 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  mutation CreateOrder ($input: CreateOrderInput!) {\n    createOrder(input: $input) {\n      OrderDateTime\n      OrderTransaction\n      Status\n      UserID\n    }\n  }\n": types.CreateOrderDocument,
     "\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      UserID\n      OrderID\n      OrderItem\n      Status\n      Datetime\n    }\n  }\n": types.ListAllOrdersByUserDocument,
+    "\n  subscription onUpdateOrderStateView($userID: String!) {\n    onUpdateOrderStateView(UserID: $userID) {\n      OrderID\n      UserID\n      Status\n    }\n  }\n": types.OnUpdateOrderStateViewDocument,
 };
 
 /**
@@ -39,6 +40,10 @@ export function graphql(source: "\n  mutation CreateOrder ($input: CreateOrderIn
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      UserID\n      OrderID\n      OrderItem\n      Status\n      Datetime\n    }\n  }\n"): (typeof documents)["\n  query ListAllOrdersByUser ($UserID: ID!) {\n    getOrdersByUserID(UserID: $UserID) {\n      UserID\n      OrderID\n      OrderItem\n      Status\n      Datetime\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  subscription onUpdateOrderStateView($userID: String!) {\n    onUpdateOrderStateView(UserID: $userID) {\n      OrderID\n      UserID\n      Status\n    }\n  }\n"): (typeof documents)["\n  subscription onUpdateOrderStateView($userID: String!) {\n    onUpdateOrderStateView(UserID: $userID) {\n      OrderID\n      UserID\n      Status\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
