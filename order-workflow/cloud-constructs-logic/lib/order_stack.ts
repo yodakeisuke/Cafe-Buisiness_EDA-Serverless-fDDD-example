@@ -52,7 +52,6 @@ export class OrderWorkflowStack extends Stack {
             {
                 arn: apiLayer.graphqlApiArn,
                 url: apiLayer.graphqlApiUrl,
-                apiKey: apiLayer.graphqlApiKey,
             }
         )
 

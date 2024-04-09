@@ -3,7 +3,7 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { Config } from '../../../common/cloud-constructs-logic/config/type'
-import { PaymentWorkflowConstruct } from './orchestration/payment-workflow';
+import { PaymentWorkflowConstruct } from './transaction/payment-workflow';
 import { PaymentEventStoreConstruct } from './data/event-store';
 
 interface PaymentStackProps extends StackProps {

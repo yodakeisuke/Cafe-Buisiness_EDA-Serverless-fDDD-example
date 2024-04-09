@@ -23,7 +23,6 @@ export class PaidDeriverConstruct extends Construct {
             graphqlApi: {
               arn: string,
               url: string,
-              apiKey: string,
             }
         ) {
 

@@ -9,7 +9,6 @@ import { aws_events as events } from "aws-cdk-lib";
 import { aws_events_targets as targets } from "aws-cdk-lib";
 import { TableV2 } from 'aws-cdk-lib/aws-dynamodb';
 import * as logs from 'aws-cdk-lib/aws-logs';
-
 import * as path from "path";
 
 
