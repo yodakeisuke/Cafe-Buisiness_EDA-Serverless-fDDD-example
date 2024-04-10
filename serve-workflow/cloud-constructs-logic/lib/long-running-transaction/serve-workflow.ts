@@ -7,6 +7,7 @@ import { aws_events_targets as targets } from "aws-cdk-lib";
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from "path";
 
 
@@ -34,6 +35,12 @@ export class ServeWorkflowConstruct extends Construct {
           forceDockerBundling: false,
       },
     });
+    const stepFunctionsPolicy = new iam.PolicyStatement({
+      actions: ['states:SendTaskSuccess', 'states:SendTaskFailure'],
+      resources: ['*'],
+    });
+
+    approvalFunction.addToRolePolicy(stepFunctionsPolicy);
 
     const publishEventFunction = new NodejsFunction(this, 'PublishEventFunction', {
       handler: 'index.handler',
@@ -42,6 +49,11 @@ export class ServeWorkflowConstruct extends Construct {
           forceDockerBundling: false,
       },
     });
+    const eventBridgePolicy = new iam.PolicyStatement({
+      actions: ['events:PutEvents'],
+      resources: ['*'],
+    });
+    publishEventFunction.addToRolePolicy(eventBridgePolicy);
 
     // Gateway for slack
     const logGroup = new logs.LogGroup(
@@ -77,6 +89,7 @@ export class ServeWorkflowConstruct extends Construct {
           'taskToken': sfn.JsonPath.taskToken,
           'input.$': '$'
       }),
+      resultPath: '$.result',
     });
 
     const publishEventTask = new tasks.LambdaInvoke(this, 'PublishEventTask', {
@@ -87,7 +100,7 @@ export class ServeWorkflowConstruct extends Construct {
     // State machine definition
     const definition = callWebhookTask
       .next(new sfn.Choice(this, 'ApprovalCheck')
-          .when(sfn.Condition.stringEquals('$.Payload.status', 'approved'), publishEventTask)
+          .when(sfn.Condition.stringEquals('$.result.status', 'approved'), publishEventTask)
           .otherwise(new sfn.Fail(this, 'NotApproved', {
               cause: 'The request was not approved',
           })));
