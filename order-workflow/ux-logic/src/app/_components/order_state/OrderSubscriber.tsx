@@ -2,10 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Client } from 'aws-amplify/api';
-
 import { onUpdateOrderStateViewByUser } from '@/lib/query';
 
-// 更新されるデータの型を定義
+import { Toaster } from "@/app/_components/ui/toaster";
+import { useToast } from "@/app/_components/ui/use-toast"
+import { ToastAction } from "@/app/_components/ui/toast"
+
+
 interface OrderStateView {
   OrderID: string;
   UserID: string;
@@ -19,6 +22,7 @@ interface OrderUpdateSubscriberProps {
 
 const OrderUpdateSubscriber: React.FC<OrderUpdateSubscriberProps> = ({ client, children }) => {
   const [orderStateView, setOrderStateView] = useState<OrderStateView | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     const updatesub = client.graphql({
@@ -29,7 +33,6 @@ const OrderUpdateSubscriber: React.FC<OrderUpdateSubscriberProps> = ({ client, c
       // @ts-ignore
     })?.subscribe({
       next: (data :any) => {
-        console.log('data: ', data);
         setOrderStateView(data.data.onUpdateOrderStateView);
       }
     });
@@ -37,15 +40,22 @@ const OrderUpdateSubscriber: React.FC<OrderUpdateSubscriberProps> = ({ client, c
     return () => updatesub.unsubscribe();
   }, [client]);
 
+  useEffect(() => {
+    if (orderStateView) {
+      console.log('toast: ', orderStateView);
+        toast.toast({
+            duration: 10000,
+            title: "Your Order Updated !",
+            description: "Order ID: " + orderStateView.OrderID + "\nStatus: " + orderStateView.Status,
+            action: <ToastAction altText="OK">OK</ToastAction>
+        });
+    }
+}, [orderStateView]);
+
   return (
     <div>
       {children}
-      <div className="absolute top-16">
-        <h2>Order State View Updated</h2>
-        <p>Order ID: {orderStateView?.OrderID}</p>
-        <p>User ID: {orderStateView?.UserID}</p>
-        <p>Status: {orderStateView?.Status}</p>
-      </div>
+      <Toaster />
     </div>
   );
 };
