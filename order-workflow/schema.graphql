@@ -40,7 +40,7 @@ type OrderConnection {
 	nextToken: String
 }
 
-type OrderStateView {
+type OrderStateView @aws_iam @aws_cognito_user_pools {
 	OrderID: String!
 	UserID: String!
 	Datetime: String!

@@ -37,16 +37,6 @@ const OrderItemSchema = z.string().transform((str) => {
   return DrinkSchema.parse({ type: json.item, size: json.size, price: json.price });
 });
 
-const a = [
-  {
-    UserID: 'user_987654321',
-    OrderID: 'user_9876543212024-03-23T13:54:33.830Z',
-    OrderItem: '{"item":"Latte","size":"l","price":"780"}',
-    Status: 'Pending',
-    __typename: 'OrderStateView'
-  }
-]
-
 const FetchedOrderSchema = z.array(z.object({
   UserID: z.string(),
   OrderID: z.string(),
@@ -56,6 +46,7 @@ const FetchedOrderSchema = z.array(z.object({
 }));
 
 export const transformAndValidateOrders = (data: unknown): AcceptedOrder[] => {
+  console.log("data", data)
   const parsedData = FetchedOrderSchema.parse(data) || [];
 
   return parsedData.map((order) => {
@@ -70,8 +61,6 @@ export const transformAndValidateOrders = (data: unknown): AcceptedOrder[] => {
 
     console.log("-------------")
     console.log(order)
-
-    const datetmp =  "-" // tmp
 
     const orderedItem = {
       orderID: order.OrderID,

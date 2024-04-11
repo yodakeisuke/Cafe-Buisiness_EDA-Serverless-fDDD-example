@@ -15,6 +15,7 @@ export class ServeWorkflowConstruct extends Construct {
     constructor(
             scope: Construct, id: string,
             centralEventBusArn: string,
+            slackWebhookUrl: cdk.aws_secretsmanager.ISecret,
         ) {
 
     super(scope, id);
@@ -23,10 +24,14 @@ export class ServeWorkflowConstruct extends Construct {
     const webhookFunction = new NodejsFunction(this, 'WebhookFunction', {
       handler: 'index.handler',
       entry: path.join(__dirname, '../../../business-logic/webHook.ts'),
+      environment: {
+        SECRET_ARN: slackWebhookUrl.secretArn,
+      },
       bundling: {
           forceDockerBundling: false,
       },
     });
+    slackWebhookUrl.grantRead(webhookFunction);
 
     const approvalFunction = new NodejsFunction(this, 'ApprovalFunction', {
       handler: 'index.handler',
@@ -39,7 +44,6 @@ export class ServeWorkflowConstruct extends Construct {
       actions: ['states:SendTaskSuccess', 'states:SendTaskFailure'],
       resources: ['*'],
     });
-
     approvalFunction.addToRolePolicy(stepFunctionsPolicy);
 
     const publishEventFunction = new NodejsFunction(this, 'PublishEventFunction', {
@@ -131,5 +135,29 @@ export class ServeWorkflowConstruct extends Construct {
         input: events.RuleTargetInput.fromEventPath('$'),
       }
     ));
+
+      // event log
+      const preparedLogGroup = new logs.LogGroup(this, 'Prepaired-log', {
+        logGroupName: '/aws/events/prepared',
+        retention: logs.RetentionDays.ONE_DAY,
+        removalPolicy: cdk.RemovalPolicy.DESTROY
+      });
+
+      const catchAll = new events.Rule(this, 'send-to-Prepared-log', {
+          eventBus: centralBus,
+          ruleName: 'catch-prepared',
+          eventPattern: {
+              source: ['cafe.serve'],
+              detailType: ['Prepared']
+          },
+          targets: [new targets.CloudWatchLogGroup(preparedLogGroup)]
+      });
+
+      const eventBridgeRole = new iam.Role(this, 'events-role-prepared', {
+          assumedBy: new iam.ServicePrincipal('events.amazonaws.com'),
+      });
+
+      preparedLogGroup.grantWrite(eventBridgeRole);
+
   }
 }

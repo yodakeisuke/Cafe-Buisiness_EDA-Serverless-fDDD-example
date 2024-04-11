@@ -1,14 +1,17 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+
 import { CognitoConstruct } from './auth/cognito';
 import { EventStoreConstruct } from './data/order-event-store';
 import { ReadModelConstruct } from './data/order-read-model'
 import { AppSyncConstruct } from './api/appsync';
+import { PaidDeriverConstruct } from './data/paid-event-deriver';
+import { PreparedDeriverConstruct } from './data/prepared-event-deriver';
 import { UILambdaConstruct } from './ui/ui-lambda';
 
 import { Config } from '../../../common/cloud-constructs-logic/config/type'
-import { PaidDeriverConstruct } from './data/paid-event-deriver';
+
 
 interface Env {
     account: string;
@@ -52,6 +55,17 @@ export class OrderWorkflowStack extends Stack {
             {
                 arn: apiLayer.graphqlApiArn,
                 url: apiLayer.graphqlApiUrl,
+            }
+        )
+
+        const preparedEventPusher = new PreparedDeriverConstruct(
+            this, 'PreparedEventDeriver',
+            props.config.centralEventBusARN,
+            props.env,
+            {
+                arn: apiLayer.graphqlApiArn,
+                url: apiLayer.graphqlApiUrl,
+                apikey: apiLayer.graphqlApiKey,
             }
         )
 

@@ -1,12 +1,20 @@
 import fetch from 'node-fetch';
-
-const webhookUrl = 'https://hooks.slack.com/services/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';
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
 export const handler = async (event) => {
     console.log("call slack with:", event);
 
     const orderInfo = event.input.detail.dynamodb;
     console.log('orderInfo: ', orderInfo)
+
+    // get the webhook URL from Secrets Manager
+    const secretArn = process.env.SECRET_ARN;
+    const client = new SecretsManagerClient({});
+    const command = new GetSecretValueCommand({ SecretId: secretArn });
+    const secretData = await client.send(command);
+    const secretObj = JSON.parse(secretData.SecretString || "");
+    const webhookUrl = secretObj['slack-webhook-url'];
+    console.log('webhookUrl: ', webhookUrl);
 
     const taskToken = event.taskToken;
 
